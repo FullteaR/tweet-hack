@@ -1,0 +1,10 @@
+CREATE SCHEMA IF NOT EXISTS d2;
+USE d2;
+
+CREATE TABLE IF NOT EXISTS tweet(
+  tweet_id BIGINT PRIMARY KEY,
+  created_at DATETIME,
+  text VARCHAR(282),
+  user_id BIGINT,
+  tweet_json LONGTEXT
+);

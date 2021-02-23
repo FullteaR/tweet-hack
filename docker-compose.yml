@@ -1,15 +1,46 @@
-version: '2.4'
+version: '3'
 services:
-        tweet-hack:
-                build:
-                        context: ./
-                image: frt/tweet-hack
-                container_name: tweet-hack
-                ports:
-                        - 127.0.0.1:11115:8888
-                volumes:  
-                        - ./src:/mnt
-                #runtime: nvidia
-                environment:
-                        - NVIDIA_VISIBLE_DEVICES=all
-                        - NVIDIA_DRIVER_CAPABILITIES=all
+    tweet-hack:
+        build:
+            context: ./
+        image: hack/tweet-hack
+        container_name: tweet-hack
+        ports:
+            - 127.0.0.1:11115:8888
+        volumes:  
+            - ./src:/mnt
+        #runtime: nvidia
+        environment:
+            - NVIDIA_VISIBLE_DEVICES=all
+            - NVIDIA_DRIVER_CAPABILITIES=all
+                        
+
+    db:
+        build:
+            context: ./db
+            dockerfile: Dockerfile
+        image: hack/d2_db
+        container_name: d2_db
+        volumes:
+             - ./db/sql:/docker-entrypoint-initdb.d
+             - ./db/data:/var/lib/mysql
+             #- ./db/my.cnf:/etc/mysql/conf.d/my.cnf
+
+    crawl:
+        build:
+            context: .
+            dockerfile: ./crawl/Dockerfile
+        image: hack/d2_crawl
+        container_name: d2_crawl
+        
+    analytics:
+        build:
+            context: .
+            dockerfile: ./analytics/Dockerfile
+        image: hack/d2_analytics
+        container_name: d2_analytics
+        ports:
+            - 127.0.0.1:8888:8888
+        volumes:
+            - ./analytics/src:/mnt
+            - ./model:/model

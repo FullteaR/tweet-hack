@@ -1,5 +1,7 @@
 # SeqGAN
 
+#FORK FROM https://github.com/LantaoYu/SeqGAN
+
 ## Requirements: 
 * **Tensorflow r1.0.1**
 * Python 2.7
