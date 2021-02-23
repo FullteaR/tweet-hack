@@ -13,3 +13,6 @@ nohup\.out
 save\.log
 
 data.tar.gz
+
+.Trash-0
+notification/src/.ipynb_checkpoints/

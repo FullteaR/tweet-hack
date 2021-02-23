@@ -1,14 +1,16 @@
 version: '3'
 services:
-    tweet-hack:
+    notification:
         build:
-            context: ./
-        image: hack/tweet-hack
-        container_name: tweet-hack
+            context: .
+            dockerfile: ./notification/Dockerfile
+        image: hack/d2_notification
+        container_name: d2_notification
         ports:
-            - 127.0.0.1:11115:8888
+            - 127.0.0.1:8889:8888
         volumes:  
-            - ./src:/mnt
+            - ./notification/src:/mnt
+            - ./model:/model
         #runtime: nvidia
         environment:
             - NVIDIA_VISIBLE_DEVICES=all
