@@ -40,7 +40,8 @@ RUN pip install setuptools\
  gensim\
  pyknp\
  mysqlclient\
- tensorflow==2.3.0
+ tensorflow==2.3.0\
+ xgboost
  
 WORKDIR /
 RUN git clone https://github.com/sonoisa/sentence-transformers
