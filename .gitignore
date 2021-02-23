@@ -1,1 +1,15 @@
 .DS_Store
+
+keys\.py
+
+__pycache__/
+
+data/
+
+since\.txt
+
+nohup\.out
+
+save\.log
+
+data.tar.gz
