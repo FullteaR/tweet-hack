@@ -289,7 +289,7 @@ while True:
                     soup = BeautifulSoup(response.content, "html.parser")
                     #text = re.replace("\s+"," ",text)
                     #text = re.replace("\n+","\n",text)
-                    if "セキュリティ" in soup.__repr__() or "security" in soup.__repr__():
+                    if "セキュリティ" in soup.__repr__() or "security" in soup.__repr__() or "脆弱性" in soup.__repr__():
                         message = "{0}(@{1})さんのツイートです\n\n{2}"
                         user = api.get_user(uid)
                         sendLINE(message.format(
