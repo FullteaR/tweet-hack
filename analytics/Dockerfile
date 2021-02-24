@@ -63,4 +63,5 @@ RUN tar -xvf sonobe-datasets-sentence-transformers-model.tar
 ADD credential.json /
 
 WORKDIR /mnt
-CMD jupyter notebook --allow-root  --NotebookApp.token=''
+#CMD jupyter notebook --allow-root  --NotebookApp.token=''
+CMD python all_in_one.py

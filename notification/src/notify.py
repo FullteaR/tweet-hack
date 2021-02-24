@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
-
 
 import pandas as pd
 import MySQLdb
@@ -23,9 +21,6 @@ import pickle
 import xgboost as xgb
 
 
-# In[ ]:
-
-
 infos = json.load(open("/credential.json", "r"))
 
 consumer_key = infos["consumer_key"]
@@ -36,16 +31,13 @@ CHANNEL_ACCESS_TOKEN = infos["CHANNEL_ACCESS_TOKEN"]
 me = infos["me"]
 
 
-# In[ ]:
-
-
 con = MySQLdb.connect(user="root", passwd="root",
-                               host="d2_db", db="mysql", use_unicode=True, charset="utf8mb4")
+                      host="d2_db", db="mysql", use_unicode=True, charset="utf8mb4")
 
 #cmd = 'echo `mecab-config --dicdir`"/mecab-ipadic-neologd"'
-#path = (subprocess.Popen(cmd, stdout=subprocess.PIPE,
+# path = (subprocess.Popen(cmd, stdout=subprocess.PIPE,
 #                           shell=True).communicate()[0]).decode('utf-8')
-m = MeCab.Tagger("-Owakati")#.format(path))
+m = MeCab.Tagger("-Owakati")  # .format(path))
 model_path = "/training_bert_japanese"
 model = SentenceTransformer(model_path, show_progress_bar=False)
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
@@ -53,59 +45,6 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 tqdm.pandas()
 url = re.compile("https?://[0-9a-zA-Z-._~?&=/]+")
-
-
-# In[ ]:
-
-
-def sendLINE(text, to=me, CHANNEL_ACCESS_TOKEN=CHANNEL_ACCESS_TOKEN):
-    url = "https://api.line.me/v2/bot/message/push"
-    headers = {
-        "Content-Type": "application/json; charset=UTF-8",
-        'Authorization': 'Bearer ' + CHANNEL_ACCESS_TOKEN
-    }
-    data = {"messages":[{"text": text,"type":"text"}],"to":to}
-    return requests.post(url, data=json.dumps(data), headers=headers).text
-
-
-# In[ ]:
-
-
-df_tweet = pd.read_sql("SELECT * FROM d2.tweet", con=con)
-df_tweet = df_tweet[df_tweet["created_at"]>datetime.now()-timedelta(1)]
-
-
-# In[ ]:
-
-
-bst = pickle.load(open("/model/bst_fav.pickle","rb"))
-
-
-# In[ ]:
-
-
-sendLINE("本日ツイートされた重要なツイートです")
-for text, uid in tqdm(zip(df_tweet["text"], df_tweet["user_id"]), total=df_tweet.shape[0]):
-    s = url.search(text)
-    if s:
-        try:
-            url_tweet = s.group(0)
-            with requests.Session() as s:
-                response = s.get(url_tweet)
-                if "https://www.youtube.com" in response.url or "https://twitter.com/" in response.url: 
-                        continue
-                soup = BeautifulSoup(response.content, "html.parser")
-                #text = re.replace("\s+"," ",text)
-                #text = re.replace("\n+","\n",text)
-                if "セキュリティ" in soup.__repr__() or "security" in soup.__repr__():
-                    message="{0}(@{1})さんのツイートです\n\n{2}"
-                    user=api.get_user(uid)
-                    sendLINE(message.format(user.name, user.screen_name, text))
-        except:
-            pass
-
-
-# In[ ]:
 
 
 iblank = re.compile("^[\s\t]*\n$")
@@ -272,11 +211,8 @@ def han2zen(text, ascii_=True, digit=True, kana=True, kakko=True, ignore=()):
     return "".join(result)
 
 
-# In[ ]:
-
-
 def process(tweet):
-    if tweet[:2]=="RT":
+    if tweet[:2] == "RT":
         return ""
     try:
         tweet = reply_to.sub("@", tweet)
@@ -308,41 +244,68 @@ def process(tweet):
     except:
         pass
     try:
-        tweet = re.sub("\n+","\n",tweet)
+        tweet = re.sub("\n+", "\n", tweet)
     except:
         pass
     try:
-        tweet = re.sub("\s+"," ",tweet)
+        tweet = re.sub("\s+", " ", tweet)
     except:
         pass
-    
+
     try:
-        tweet = re.sub("[^ぁ-んァ-ヶー一-龠\x00-\x7F]+","",tweet)
+        tweet = re.sub("[^ぁ-んァ-ヶー一-龠\x00-\x7F]+", "", tweet)
     except:
         pass
 
     return tweet
 
 
-# In[ ]:
+def sendLINE(text, to=me, CHANNEL_ACCESS_TOKEN=CHANNEL_ACCESS_TOKEN):
+    url = "https://api.line.me/v2/bot/message/push"
+    headers = {
+        "Content-Type": "application/json; charset=UTF-8",
+        'Authorization': 'Bearer ' + CHANNEL_ACCESS_TOKEN
+    }
+    data = {"messages": [{"text": text, "type": "text"}], "to": to}
+    return requests.post(url, data=json.dumps(data), headers=headers).text
 
 
-df_tweet["text"] = df_tweet["text"].progress_apply(process)
+while True:
+    df_tweet = pd.read_sql("SELECT * FROM d2.tweet", con=con)
+    df_tweet = df_tweet[df_tweet["created_at"] > datetime.now() - timedelta(1)]
 
+    bst = pickle.load(open("/model/bst_fav.pickle", "rb"))
 
-# In[ ]:
+    sendLINE("本日ツイートされた重要なツイートです")
+    for text, uid in tqdm(zip(df_tweet["text"], df_tweet["user_id"]), total=df_tweet.shape[0]):
+        s = url.search(text)
+        if s:
+            try:
+                url_tweet = s.group(0)
+                with requests.Session() as s:
+                    response = s.get(url_tweet)
+                    if "https://www.youtube.com" in response.url or "https://twitter.com/" in response.url:
+                        continue
+                    soup = BeautifulSoup(response.content, "html.parser")
+                    #text = re.replace("\s+"," ",text)
+                    #text = re.replace("\n+","\n",text)
+                    if "セキュリティ" in soup.__repr__() or "security" in soup.__repr__():
+                        message = "{0}(@{1})さんのツイートです\n\n{2}"
+                        user = api.get_user(uid)
+                        sendLINE(message.format(
+                            user.name, user.screen_name, text))
+            except:
+                pass
 
+    df_tweet["text"] = df_tweet["text"].progress_apply(process)
 
-vectors = np.asarray(model.encode(df_tweet.text.fillna("").values))
-y_pred =bst.predict(vectors)
+    vectors = np.asarray(model.encode(df_tweet.text.fillna("").values))
+    y_pred = bst.predict(vectors)
 
+    for pred, uid in tqdm(zip(y_pred, df_tweet["user_id"]), total=df_tweet.shape[0]):
+        if pred > 0.5:
+            message = "{0}(@{1})さんのツイートです\n\n{2}"
+            user = api.get_user(uid)
+            sendLINE(message.format(user.name, user.screen_name, text))
 
-# In[ ]:
-
-
-for pred, uid in tqdm(zip(y_pred, df_tweet["user_id"]), total=df_tweet.shape[0]):
-    if pred>0.5:
-        message="{0}(@{1})さんのツイートです\n\n{2}"
-        user=api.get_user(uid)
-        sendLINE(message.format(user.name, user.screen_name, text))
-
+    time.sleep(60 * 60 * 24)  # 1日休む
