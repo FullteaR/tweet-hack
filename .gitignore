@@ -16,3 +16,5 @@ data.tar.gz
 
 .Trash-0
 notification/src/.ipynb_checkpoints/
+
+model/*
