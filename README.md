@@ -6,7 +6,7 @@
 
 ## INSTALL
 ### Twitter apiの入手
-https://developer.twitter.com/en/apps/の右上にあるCreate an appを押して、アプリケーションを作成します。
+https://developer.twitter.com/en/apps/ の右上にあるCreate an appを押して、アプリケーションを作成します。
 
 API key, API secret, Access Token, Access Token Secretを控えておきます。
 ### LINE apiの入手
